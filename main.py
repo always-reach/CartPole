@@ -11,7 +11,7 @@ logger.setLevel(logging.DEBUG)
 def run():
     gym_env: GymEnv = GymEnv()
     dqn_model: DQNModel = DQNModel()
-    num_episodes: int = 30
+    num_episodes: int = 3000
     reward_list = []
     for episode in range(num_episodes):
         print("episode", episode)
@@ -29,6 +29,7 @@ def run():
             gym_env.env.render()
         reward_list.append(gross_reward)
         dqn_model.experience_replay()
+        dqn_model.update_epsilon()
 
     gym_env.env.close()
     pyplot.plot(reward_list)
