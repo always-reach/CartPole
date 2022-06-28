@@ -8,23 +8,23 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def run():
+def train():
     gym_env: GymEnv = GymEnv()
     dqn_model: DQNModel = DQNModel()
     num_episodes: int = 3000
     reward_list = []
     for episode in range(num_episodes):
         print("episode", episode)
-        state = gym_env.env.reset()
+        state_t = gym_env.env.reset()
         game = False
         gross_reward = 0
         while not game:
-            q_value: list[float] = dqn_model.q_values(state)
-            action = dqn_model.epsilon_greedy(state)
-            state, reward, game, info = gym_env.env.step(action)
+            action = dqn_model.epsilon_greedy(state_t)
+            state_t1, reward, game, info = gym_env.env.step(action)
             gross_reward += reward
-            replay_dict: dict = dict(state=state, action=action, q_table=q_value, reward=reward)
+            replay_dict: dict = dict(state_t=state_t, state_t1=state_t1, action=action, reward=reward)
             dqn_model.replay_memory.append(replay_dict)
+            state_t = state_t1
 
             gym_env.env.render()
         reward_list.append(gross_reward)
@@ -36,5 +36,20 @@ def run():
     pyplot.show()
 
 
+def test():
+    gym_env: GymEnv = GymEnv()
+    dqn_model: DQNModel = DQNModel()
+    dqn_model.epsilon = 0
+    dqn_model.load_weights()
+    while True:
+        state = gym_env.env.reset()
+        game = False
+        while not game:
+            action = dqn_model.epsilon_greedy(state)
+            state, reward, game, info = gym_env.env.step(action)
+            gym_env.env.render()
+
+
 if __name__ == '__main__':
-    run()
+    train()
+# test()
